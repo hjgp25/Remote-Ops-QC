@@ -1,0 +1,4 @@
+job_id,operator,well_name,rig,state,county,status,section,latitude,longitude,current_md,current_tvd,inc,azi,last_update,mwd_hand
+J-2601,Example Energy,Mesa 14H,Rig 312,TX,Midland,Drilling,8.5 in lateral,31.997,-102.082,18420,10180,89.7,132.4,2026-09-10 20:05,Remote A
+J-2602,Permian Operator,Coyote 7H,Rig 228,TX,Reeves,Sliding,8.5 in curve,31.42,-103.62,11260,9450,72.3,188.1,2026-09-10 20:02,Remote B
+J-2603,Northern Exploration,Badlands 3H,Rig 19,ND,McKenzie,Rotating,6.75 in lateral,47.72,-103.34,20110,10920,90.4,271.8,2026-09-10 19:58,Remote C

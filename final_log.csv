@@ -1,0 +1,2 @@
+job_id,operator,well_name,api,rig,state,county,section,hole_size,bha_id,mwd_serial,final_md,final_tvd,final_inc,final_azi,start_date,end_date
+J-2601,Example Energy,Mesa 14H,42-329-99999,Rig 312,TX,Midland,8.5 in lateral,8.5,BHA-4712,MWD-1028,18420,10173,89.7,132.4,2026-09-07,2026-09-10

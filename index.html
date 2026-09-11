@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0a0e13">
+<title>RemoteOps QC</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="app">
+<header><div><b>RO</b><span>RemoteOps QC</span><small>Drilling operations · survey QC · final log control</small></div><em id="mode">CSV MODE</em></header>
+<section class="hero"><div><label>REMOTE DRILLING OPERATIONS CONTROL CENTER</label><h1>One screen for operations, QC and final delivery.</h1><p>Upload jobs, surveys, well plans and final-log CSVs. Review survey quality, compare plan vs actual, verify bottom-line information, see current jobs on a map and connect a real-time feed later.</p></div></section>
+
+<nav>
+<button class="active" data-tab="overview">Overview</button><button data-tab="jobs">Jobs & Map</button><button data-tab="survey">Survey QC</button><button data-tab="plan">Plan vs Actual</button><button data-tab="final">Final Log QC</button><button data-tab="live">Live Ops</button><button data-tab="setup">Data Setup</button>
+</nav>
+
+<main>
+<section id="overview" class="view active">
+<div class="kpis">
+<div><small>ACTIVE JOBS</small><strong id="kActive">0</strong></div><div><small>QC FLAGS</small><strong id="kFlags">0</strong></div><div><small>DEEPEST MD</small><strong id="kMD">—</strong></div><div><small>DATA SOURCES</small><strong id="kSources">0/4</strong></div>
+</div>
+<h2>Current Operations</h2><div class="table"><table><thead><tr><th>Job</th><th>Operator</th><th>Well</th><th>Rig</th><th>Status</th><th>Section</th><th>MD</th><th>Inc</th><th>Azi</th><th>Last Update</th></tr></thead><tbody id="overviewJobs"></tbody></table></div>
+<h2>QC Attention Queue</h2><div class="panel" id="queue">Load a survey CSV to generate QC alerts.</div>
+</section>
+
+<section id="jobs" class="view">
+<div class="cols"><div class="panel"><h2>Current Job Locations</h2><div id="map">Load jobs.csv with latitude / longitude.</div></div>
+<div class="panel"><h2>Job Board</h2><select id="statusFilter"><option value="">All statuses</option><option>Drilling</option><option>Sliding</option><option>Rotating</option><option>Standby</option><option>Finished</option></select><div class="table"><table><thead><tr><th>Job</th><th>Well</th><th>Rig</th><th>Status</th><th>MD</th><th>MWD Hand</th></tr></thead><tbody id="jobsBody"></tbody></table></div></div></div>
+</section>
+
+<section id="survey" class="view">
+<div class="cols"><div class="panel"><h2>Survey CSV</h2><p>Expected: job_id, md, inc, azi, tvd. Optional: dls, northing, easting, gravity, mag_dip, total_field.</p><input type="file" id="surveyFile" accept=".csv"></div>
+<div class="panel"><h2>QC Tolerances</h2><div class="fields"><label>Max spacing ft<input id="spacing" type="number" value="200"></label><label>Max DLS °/100<input id="maxDls" type="number" value="18"></label><label>DLS diff<input id="dlsDiff" type="number" step=".1" value=".5"></label><label>Gravity target<input id="gravTarget" type="number" step=".001" value="1"></label><label>Gravity tol<input id="gravTol" type="number" step=".001" value=".02"></label><label>Dip target<input id="dipTarget" type="number" value="60"></label><label>Dip tol<input id="dipTol" type="number" value="5"></label></div></div></div>
+<div class="kpis"><div><small>STATIONS</small><strong id="qStations">0</strong></div><div><small>ERRORS</small><strong id="qErrors">0</strong></div><div><small>WARNINGS</small><strong id="qWarnings">0</strong></div><div><small>PASS CHECKS</small><strong id="qPass">0</strong></div></div>
+<h2>QC Issues</h2><div class="panel" id="surveyIssues">Upload a survey CSV.</div>
+<h2>Survey Data</h2><div class="table tall"><table><thead id="surveyHead"></thead><tbody id="surveyBody"></tbody></table></div>
+</section>
+
+<section id="plan" class="view">
+<div class="cols"><div class="panel"><h2>Well Plan CSV</h2><p>Expected: job_id, md, inc, azi, tvd. Optional: northing, easting.</p><input type="file" id="planFile" accept=".csv"></div>
+<div class="panel"><h2>Plan vs Actual Limits</h2><div class="fields"><label>MD match ft<input id="planMd" type="number" value="60"></label><label>Inc °<input id="incTol" type="number" value="2"></label><label>Azi °<input id="aziTol" type="number" value="3"></label><label>TVD ft<input id="tvdTol" type="number" value="20"></label><label>Position ft<input id="posTol" type="number" value="50"></label></div></div></div>
+<h2 id="planSummary">Plan Comparison</h2><div class="table tall"><table><thead><tr><th>Survey MD</th><th>Plan MD</th><th>ΔInc</th><th>ΔAzi</th><th>ΔTVD</th><th>Pos Δ</th><th>Result</th></tr></thead><tbody id="planBody"></tbody></table></div>
+</section>
+
+<section id="final" class="view">
+<div class="cols"><div class="panel"><h2>Final Log / Metadata CSV</h2><p>Recommended: job_id, operator, well_name, api, rig, state, county, section, hole_size, bha_id, mwd_serial, final_md, final_tvd, final_inc, final_azi, start_date, end_date.</p><input type="file" id="finalFile" accept=".csv"></div>
+<div class="panel"><h2>Selected Job</h2><select id="jobSelect"><option value="">Select job</option></select><p>The checker compares the final-log row against jobs.csv and the deepest uploaded survey.</p></div></div>
+<h2>Bottom-Line / Header QC</h2><div id="bottomLine" class="checks"></div>
+<h2>Final Delivery Issues</h2><div class="panel" id="finalIssues">Load final-log data.</div>
+</section>
+
+<section id="live" class="view">
+<div class="panel"><h2>Real-Time Feed Connector</h2><div class="connect"><input id="wsUrl" placeholder="wss://your-server.example.com/live"><button id="connect">Connect</button></div><p>Expected JSON: job_id, timestamp, md, tvd, inc, azi, rop, gpm, spm, spp, diff_pressure, gamma, temp, telemetry_status.</p></div>
+<div class="livegrid">
+<div><small>MD</small><strong id="mMD">—</strong></div><div><small>TVD</small><strong id="mTVD">—</strong></div><div><small>INC</small><strong id="mInc">—</strong></div><div><small>AZI</small><strong id="mAzi">—</strong></div><div><small>ROP</small><strong id="mROP">—</strong></div><div><small>GAMMA</small><strong id="mGamma">—</strong></div><div><small>GPM</small><strong id="mGPM">—</strong></div><div><small>SPM</small><strong id="mSPM">—</strong></div><div><small>SPP</small><strong id="mSPP">—</strong></div><div><small>DIFF P</small><strong id="mDP">—</strong></div><div><small>TEMP</small><strong id="mTemp">—</strong></div><div><small>TELEMETRY</small><strong id="mTelem">—</strong></div>
+</div><h2>Live Event Log</h2><pre id="eventLog">Waiting for connection…</pre>
+</section>
+
+<section id="setup" class="view">
+<div class="cols"><div class="panel"><h2>Jobs CSV</h2><p>job_id, operator, well_name, rig, state, county, status, section, latitude, longitude, current_md, current_tvd, inc, azi, last_update, mwd_hand</p><input type="file" id="jobsFile" accept=".csv"></div>
+<div class="panel alert"><h2>Production Security</h2><p><b>Do not place proprietary customer well data on a public GitHub Pages site.</b> This prototype processes CSV files locally in your browser. Production should use authentication, encrypted storage, role permissions, audit logs and a private backend.</p></div></div>
+<div class="kpis"><div><small>JOBS</small><strong id="sJobs">0</strong></div><div><small>SURVEY ROWS</small><strong id="sSurvey">0</strong></div><div><small>PLAN ROWS</small><strong id="sPlan">0</strong></div><div><small>FINAL ROWS</small><strong id="sFinal">0</strong></div></div>
+</section>
+</main>
+<footer>RemoteOps QC · Prototype · CSV QC runs locally in the browser. Real-time operations require an authenticated data source/backend.</footer>
+</div>
+<script src="app.js"></script>
+</body></html>
